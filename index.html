@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Phishing Awareness — Demo (Local)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --accent:#06b6d4;
+    --soft:#111827;
+    --glass: rgba(255,255,255,0.03);
+    --muted: #9aa4b2;
+  }
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:
+    radial-gradient(800px 400px at 10% 10%, rgba(6,182,212,0.06), transparent),
+    linear-gradient(180deg,#081226 0%, #071022 100%);
+    color:#e6eef8; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px;}
+  .app{width:1100px; max-width:98%; display:grid; grid-template-columns:1fr 360px; gap:20px; align-items:start}
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:12px; padding:20px; box-shadow: 0 10px 40px rgba(3,7,18,0.6); border:1px solid rgba(255,255,255,0.03);
+  }
+
+  .header{display:flex; gap:12px; align-items:center; margin-bottom:14px}
+  .logo{
+    height:54px; width:54px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px;
+    background:linear-gradient(135deg,#0ea5a4,#06b6d4); color:#042027;
+    box-shadow: 0 6px 18px rgba(6,182,212,0.08);
+  }
+  h1{margin:0;font-size:20px}
+  p.lead{margin:2px 0 0;color:var(--muted);font-size:13px}
+
+  /* List of simulated sites */
+  .sites{display:flex;flex-direction:column; gap:12px; margin-top:6px}
+  .site{
+    display:flex; align-items:center; gap:12px; padding:12px; border-radius:10px; cursor:pointer;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border:1px solid rgba(255,255,255,0.02); transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+  .site:hover{transform:translateY(-4px); box-shadow: 0 14px 34px rgba(2,6,23,0.6)}
+  .logo-small{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+  .ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
+  .fb{background:linear-gradient(135deg,#1877f2,#60a5fa)}
+  .sc{background:linear-gradient(135deg,#fffc00,#ff4f8b)}
+
+  .meta{flex:1}
+  .meta strong{display:block}
+  .meta .desc{color:var(--muted);font-size:13px;margin-top:4px}
+
+  .cta{display:flex; gap:10px; align-items:center}
+  .btn{
+    background:transparent; border:1px solid rgba(255,255,255,0.06); padding:8px 12px; border-radius:8px; color:#dce9f6; cursor:pointer; font-weight:600;
+  }
+  .btn.primary{background:linear-gradient(90deg,var(--accent), #0ea5a4); color:#00101a; border:0; box-shadow: 0 8px 24px rgba(6,182,212,0.08)}
+  .small{font-size:13px; color:var(--muted)}
+
+  /* Right column */
+  aside .stats{display:flex; flex-direction:column; gap:12px}
+  .stat{background:var(--glass); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02)}
+  .stat strong{display:block}
+  .export{margin-top:10px}
+
+  /* Modal login */
+  .modal-back{position:fixed; inset:0; background:rgba(2,6,23,0.6); display:none; align-items:center; justify-content:center; z-index:120}
+  .modal{width:420px; max-width:94%; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,0.03)}
+  .modal h2{margin:0 0 6px}
+  .field{display:flex; flex-direction:column; gap:6px; margin-top:10px}
+  input[type="text"], input[type="password"]{padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background:transparent; color: #e6eef8; outline:none}
+  .modal .hint{margin-top:10px; color:var(--muted); font-size:13px}
+
+  /* DEMO badge (small & unobtrusive) */
+  .badge{
+    position:fixed; right:18px; top:18px; background:rgba(6,182,212,0.09); color:var(--accent); border:1px solid rgba(6,182,212,0.12);
+    padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px; backdrop-filter: blur(4px);
+  }
+
+  footer.small{margin-top:14px; color:var(--muted); font-size:13px}
+  @media(max-width:980px){ .app{grid-template-columns:1fr} .badge{right:12px;top:12px} }
+</style>
+</head>
+<body>
+  <div class="badge">DEMO</div>
+
+  <div class="app">
+    <div class="card">
+      <div class="header">
+        <div class="logo">PH</div>
+        <div>
+          <h1>Phishing Awareness — Interactive Demo</h1>
+          <p class="lead">Open any simulated login below. This demo keeps no passwords and only stores a masked username for teaching/reporting.</p>
+        </div>
+      </div>
+
+      <div class="sites" role="list">
+        <div class="site" role="listitem" onclick="openModal('Instagram')" tabindex="0" onkeypress="if(event.key==='Enter')openModal('Instagram')">
+          <div class="logo-small ig">IG</div>
+          <div class="meta">
+            <strong>Instagram — Login</strong>
+            <div class="desc">Common lures: account recovery, “new login” alerts, fake invoice links.</div>
+          </div>
+          <div class="cta"><button class="btn">Preview</button></div>
+        </div>
+
+        <div class="site" role="listitem" onclick="openModal('Facebook')" tabindex="0" onkeypress="if(event.key==='Enter')openModal('Facebook')">
+          <div class="logo-small fb">f</div>
+          <div class="meta">
+            <strong>Facebook — Login</strong>
+            <div class="desc">Common lures: friend request alerts, password reset pages, suspicious attachments.</div>
+          </div>
+          <div class="cta"><button class="btn">Preview</button></div>
+        </div>
+
+        <div class="site" role="listitem" onclick="openModal('Snapchat')" tabindex="0" onkeypress="if(event.key==='Enter')openModal('Snapchat')">
+          <div class="logo-small sc">SC</div>
+          <div class="meta">
+            <strong>Snapchat — Login</strong>
+            <div class="desc">Common lures: “someone viewed” notifications, shortened links, third-party apps.</div>
+          </div>
+          <div class="cta"><button class="btn">Preview</button></div>
+        </div>
+      </div>
+
+      <footer class="small">Tip for exhibit: tell visitors to try the simulation with fictional credentials so we can discuss the red flags afterwards.</footer>
+    </div>
+
+    <aside class="card">
+      <h3 style="margin:0 0 10px">Session & Reporting</h3>
+
+      <div class="stats" id="statsArea"></div>
+
+      <div class="export">
+        <button class="btn primary" id="exportBtn">Export Safe Report</button>
+        <div class="small" style="margin-top:8px">Export includes only site name, ISO timestamp, and a masked username (no passwords).</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <details style="color:var(--muted)"><summary style="cursor:pointer;font-weight:700">Teaching notes</summary>
+        <ul style="padding-left:18px;color:var(--muted)"><li>Ask visitors why they flagged or didn’t flag the page.</li><li>Show how to inspect link destinations and sender addresses.</li></ul></details>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-back" id="modalBack" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h2 id="modalTitle">Simulated Login — <span id="siteName">Site</span></h2>
+
+      <!-- visually realistic form -->
+      <div style="margin-top:8px; display:flex; gap:10px; align-items:center;">
+        <div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#0ea5a4,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700;color:#00101a">L</div>
+        <div>
+          <div style="font-weight:700" id="siteHeader">Example</div>
+          <div class="small" id="siteSub">Please sign in to continue</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="small">Username or email</label>
+        <input id="inputUser" type="text" autocomplete="off" placeholder="username@example.com" />
+      </div>
+
+      <div class="field">
+        <label class="small">Password</label>
+        <input id="inputPass" type="password" autocomplete="new-password" placeholder="Password" />
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
+        <div style="display:flex; gap:10px; align-items:center">
+          <input id="flag" type="checkbox" />
+          <label for="flag" class="small">I think this looks suspicious</label>
+        </div>
+        <div style="display:flex; gap:10px">
+          <button class="btn" onclick="closeModal()">Cancel</button>
+          <button class="btn primary" onclick="simulateLogin()">Sign in</button>
+        </div>
+      </div>
+
+      <div class="hint small" style="margin-top:10px">This is a classroom demo. Passwords are discarded immediately and are not saved.</div>
+    </div>
+  </div>
+
+<script>
+  // STORAGE: safe masked-only events. Key in localStorage:
+  const KEY = 'phish_demo_improved_v1';
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { return []; }
+  }
+  function save(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); }
+
+  function maskUsername(u){
+    if(!u) return '';
+    u = String(u).trim();
+    if(u.length <= 2) return '*'.repeat(u.length);
+    // keep first and last char and a count indicator (exhibits cannot reconstruct)
+    return u[0] + '*'.repeat(Math.max(1, Math.min(6, u.length-2))) + u[u.length-1] + ` (len:${u.length})`;
+  }
+
+  // render stats
+  function renderStats(){
+    const data = load();
+    const area = document.getElementById('statsArea');
+    const totals = {Instagram:0, Facebook:0, Snapchat:0};
+    data.forEach(e => { totals[e.site] = (totals[e.site]||0) + 1; });
+    area.innerHTML = '';
+    Object.keys(totals).forEach(k=>{
+      const div = document.createElement('div');
+      div.className='stat';
+      const count = totals[k] || 0;
+      div.innerHTML = `<strong>${k}</strong><div class="small">Simulations run: ${count}</div>`;
+      area.appendChild(div);
+    });
+    if(data.length){
+      const last = data[data.length-1];
+      const info = document.createElement('div'); info.className='stat';
+      info.innerHTML = `<strong>Last event</strong><div class="small">${last.site} — ${new Date(last.time).toLocaleString()} — ${last.flagged ? 'Flagged' : 'Not flagged'} — user: ${last.maskedUser || '—'}</div>`;
+      area.appendChild(info);
+    }
+  }
+  renderStats();
+
+  // Modal controls
+  const modalBack = document.getElementById('modalBack');
+  const siteNameEl = document.getElementById('siteName');
+  const siteHeader = document.getElementById('siteHeader');
+  const siteSub = document.getElementById('siteSub');
+  let currentSite = null;
+  function openModal(site){
+    currentSite = site;
+    siteNameEl.textContent = site;
+    siteHeader.textContent = `${site} Login`;
+    siteSub.textContent = `Sign in to continue to ${site}.`;
+    document.getElementById('inputUser').value = '';
+    document.getElementById('inputPass').value = '';
+    document.getElementById('flag').checked = false;
+    modalBack.style.display = 'flex';
+    document.getElementById('inputUser').focus();
+  }
+  function closeModal(){ modalBack.style.display = 'none'; }
+
+  function simulateLogin(){
+    // read user input, but DO NOT store raw username or password
+    const rawUser = document.getElementById('inputUser').value;
+    // mask username
+    const masked = maskUsername(rawUser);
+    const flagged = !!document.getElementById('flag').checked;
+
+    // record only safe metadata
+    const events = load();
+    events.push({
+      site: currentSite || 'Unknown',
+      time: new Date().toISOString(),
+      maskedUser: masked || null,
+      flagged: flagged
+      // NO password, NO raw email stored
+    });
+    save(events);
+    renderStats();
+    closeModal();
+
+    // Clear password from memory immediately (just to be explicit)
+    document.getElementById('inputPass').value = '';
+
+    // Friendly popup with teaching points
+    const msg = `${currentSite} simulation recorded.\n\nThis demo stores only a masked username and metadata for classroom discussion. No passwords are saved.`;
+    alert(msg);
+  }
+
+  // Export
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const data = load();
+    const report = {
+      generatedAt: new Date().toISOString(),
+      note: 'Safe educational export: contains only site, ISO time, masked username, and flagged boolean. No credentials.',
+      events: data
+    };
+    const blob = new Blob([JSON.stringify(report, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'phish-demo-report.json';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  // close modal by clicking backdrop
+  modalBack.addEventListener('click', (e)=>{ if(e.target === modalBack) closeModal(); });
+
+  // simple keyboard access
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') closeModal();
+    if(e.key === 'Enter' && modalBack.style.display === 'flex') simulateLogin();
+  });
+</script>
+</body>
+</html>
